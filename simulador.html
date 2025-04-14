@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulador de Respiración - Múltiples Pacientes</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    #output {
+      font-size: 1.2rem;
+      margin-top: 30px;
+      text-align: left;
+      display: inline-block;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🫁 Simulador de Respiración - Pacientes</h1>
+  <button onclick="iniciarSimulacion()">Iniciar Simulación</button>
+  <div id="output">Esperando simulación...</div>
+
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyARLaO30ra13-eJHwD51qDqyXY_Vi2b0Zs",
+      authDomain: "monitorsrt-fb10b.firebaseapp.com",
+      databaseURL: "https://monitorsrt-fb10b-default-rtdb.firebaseio.com",
+      projectId: "monitorsrt-fb10b",
+      storageBucket: "monitorsrt-fb10b.firebasestorage.app",
+      messagingSenderId: "466636322708",
+      appId: "1:466636322708:web:209cd3b9ee3df15645c181",
+      measurementId: "G-X16K0GSL46"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const pacientes = ["paciente_1", "paciente_2", "paciente_3"];
+
+    function iniciarSimulacion() {
+      document.getElementById("output").innerText = "Simulación iniciada...\n";
+
+      setInterval(() => {
+        let texto = "";
+
+        pacientes.forEach(paciente => {
+          const respiracion = Math.floor(Math.random() * (22 - 8 + 1)) + 8;
+          const timestamp = new Date().toISOString();
+
+          // Actualizar datos en Firebase
+          database.ref(`signos/${paciente}`).set({
+            respiracion: respiracion,
+            fecha: timestamp
+          });
+
+          texto += `${paciente}: ${respiracion} resp/min (${timestamp})\n`;
+        });
+
+        document.getElementById("output").innerText = texto;
+      }, 2000);
+    }
+  </script>
+
+</body>
+</html>

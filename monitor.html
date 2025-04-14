@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Monitor de Signos Vitales</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f0f0f0;
+    }
+    .paciente {
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .alerta-baja {
+      background-color: #ffe5e5;
+      border-left: 6px solid red;
+    }
+    .alerta-alta {
+      background-color: #fff3cd;
+      border-left: 6px solid orange;
+    }
+    .normal {
+      background-color: #e6ffe6;
+      border-left: 6px solid green;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 Monitor de Respiración de Pacientes</h1>
+  <div id="contenedor"></div>
+
+  <script>
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyARLaO30ra13-eJHwD51qDqyXY_Vi2b0Zs",
+      authDomain: "monitorsrt-fb10b.firebaseapp.com",
+      databaseURL: "https://monitorsrt-fb10b-default-rtdb.firebaseio.com",
+      projectId: "monitorsrt-fb10b",
+      storageBucket: "monitorsrt-fb10b.appspot.com",
+      messagingSenderId: "466636322708",
+      appId: "1:466636322708:web:209cd3b9ee3df15645c181",
+      measurementId: "G-X16K0GSL46"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const contenedor = document.getElementById('contenedor');
+
+    const MIN = 12;
+    const MAX = 18;
+
+    function crearElementoPaciente(nombre, respiracion) {
+      const div = document.createElement('div');
+      let estado = "Normal";
+      let clase = "normal";
+
+      if (respiracion < MIN) {
+        estado = "🚨 RESPIRACIÓN BAJA";
+        clase = "alerta-baja";
+      } else if (respiracion > MAX) {
+        estado = "⚠️ RESPIRACIÓN ALTA";
+        clase = "alerta-alta";
+      }
+
+      div.className = `paciente ${clase}`;
+      div.innerHTML = `
+        <strong>Paciente:</strong> ${nombre}<br>
+        <strong>Respiraciones:</strong> ${respiracion} resp/min<br>
+        <strong>Estado:</strong> ${estado}
+      `;
+      return div;
+    }
+
+    db.ref("signos").on("value", snapshot => {
+      contenedor.innerHTML = "";
+      const data = snapshot.val();
+      for (let paciente in data) {
+        const respiracion = data[paciente].respiracion;
+        const div = crearElementoPaciente(paciente, respiracion);
+        contenedor.appendChild(div);
+      }
+    });
+  </script>
+</body>
+</html>
